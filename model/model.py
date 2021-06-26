@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 from enum import Enum
 
+from pathlib import Path
 
 # What about program states?
 # class State(Enum):
@@ -13,21 +14,26 @@ from enum import Enum
 
 
 class Model(QObject):
+    # voice filter choices signals
     voices_response_changed = Signal(dict)
     voices_names_changed = Signal(list)
     voices_gender_changed = Signal(list)
     voices_languages_changed = Signal(list)
     voices_engines_changed = Signal(list)
 
-    voice_push_button_disabled_status_changed = Signal(bool)
-
-    text_edit_plaintext_changed = Signal(str)
-
+    # current voice filter choice signals
     voices_names_current_changed = Signal(str)
     voices_gender_current_changed = Signal(str)
     voices_engines_current_changed = Signal(str)
     voices_languages_current_changed = Signal(str)
 
+    # voice pushButton status signal
+    voice_push_button_disabled_status_changed = Signal(bool)
+
+    # textEdit signal
+    text_edit_plaintext_changed = Signal(str)
+
+    # voice settings signal
     settings_changed = Signal(dict)
 
     def __init__(self):
@@ -50,6 +56,94 @@ class Model(QObject):
             '_voices_gender_current': "",
             '_voices_languages_current': "",
         }
+
+        self._folder_data = "voicePadData"
+        self._folder_settings = "settings"
+        self._folder_results = "results"
+        self._filename_results_base = "voice."
+        self._filename_settings_voices = "settingsVoices."
+        self._base = Path().resolve()
+
+    #############################
+    # Path and filename variables
+    #############################
+
+    @property
+    def folder_data(self):
+        """
+        Folder name for created content
+        :return:
+        """
+        return self._folder_data
+
+    @folder_data.setter
+    def folder_data(self, value):
+        self._folder_data = value
+
+    @property
+    def folder_settings(self):
+        """
+        Folder name for settings
+        :return:
+        """
+        return self._folder_settings
+
+    @folder_settings.setter
+    def folder_settings(self, value):
+        self._folder_settings = value
+
+    @property
+    def folder_results(self):
+        """
+        Folder name for results of synthesized text
+        :return:
+        """
+        return self._folder_results
+
+    @folder_results.setter
+    def folder_results(self, value):
+        self._folder_results = value
+
+    @property
+    def filename_settings_voices(self):
+        """
+        Filename for voices settings
+        :return:
+        """
+        return self._filename_settings_voices
+
+    @filename_settings_voices.setter
+    def filename_settings_voices(self, value):
+        self._filename_settings_voices = value
+
+    @property
+    def filename_results_base(self):
+        """
+        Base of filename for results.
+        Will be incremented
+        :return:
+        """
+        return self._filename_results_base
+
+    @filename_results_base.setter
+    def filename_results_base(self, value):
+        self._filename_results_base = value
+
+    def get_path_settings_voices(self):
+        settings_path = self._base.joinpath(self.folder_data).joinpath(
+            self.folder_settings)
+        settings_filename = self.filename_settings_voices
+        return settings_path.joinpath(settings_filename)
+
+    def get_path_results(self):
+        settings_path = self._base.joinpath(self.folder_data).joinpath(
+            self.folder_results)
+        settings_filename = self.filename_results_base
+        return settings_path.joinpath(settings_filename)
+
+    ##############
+    # API response
+    ##############
 
     @property
     def voices_response(self):
@@ -253,6 +347,16 @@ class Model(QObject):
         self.voice_push_button_disabled_status_changed.emit(
             self._voice_push_button_disabled_status
         )
+
+    ##################################
+    # Task for synthesizing voice data
+    ##################################
+
+    def get_voice_task_data(self):
+        data = {'voice': self.voices_names_current,
+                'engine': self.voices_engines_current,
+                'text': self.text_edit_plaintext}
+        return data
 
     ##########
     # textEdit

@@ -4,6 +4,7 @@ from PySide6.QtCore import QThreadPool
 import time
 import json
 from pathlib import Path
+from os import path
 
 from model.model import Model
 
@@ -16,8 +17,7 @@ class MainController(QObject):
 
         self._model = model
 
-        self.base = Path().parent.absolute()
-
+        # only one thread at a time is executed, the rest is queued
         QThreadPool.globalInstance().setMaxThreadCount(1)
         self.load_voices()
 
@@ -127,22 +127,60 @@ class MainController(QObject):
     @Slot()
     def synthesize_voice(self):
         self.save_settings()
-        data = {'voice': self._model.voices_names_current,
-                'engine': self._model.voices_engines_current,
-                'text': self._model.text_edit_plaintext}
+        data = self._model.get_voice_task_data()
+
+        data['path'] = self.create_path_result_voice()
+
         synthesize_task = GetSynthesizedVoiceTask(data)
         QThreadPool.globalInstance().tryStart(synthesize_task)
 
+    def create_path_result_voice(self):
+        """
+        Creates folder structure and incrementing filename for voice results
+        :return:
+        """
+        path_result = self._model.get_path_results()
+        filename_result = self._model.filename_results_base
+
+        new_filename = ""
+        for i in range(1, 1000):
+            new_filename = filename_result.replace('.', str(i).zfill(3) + '.mp3')
+            if not path_result.parent.joinpath(new_filename).exists():
+                break
+
+        path_result = path_result.parent.joinpath(new_filename)
+        path_result.parent.mkdir(parents=True, exist_ok=True)
+
+        return path_result
+
     @Slot()
     def debug(self):
-        print(self._model.settings)
+        path_result = self._model.get_path_results()
+        filename_result = self._model.filename_results_base
+
+        tmp_filename = ""
+        for i in range(1, 100):
+            tmp_filename = filename_result.replace('.', str(i).zfill(3) + '.mp3')
+            if not path_result.parent.joinpath(tmp_filename).exists():
+                break
+
+        path_result = path_result.parent.joinpath(tmp_filename)
+        path_result.parent.mkdir(parents=True, exist_ok=True)
+        with open(path_result, "w") as file:
+            file.write("whoop")
 
     def load_settings(self):
-        with open('settings', 'r') as f:
-            self._model.settings = json.load(f)
+        if path.exists(self._model.get_path_settings_voices()):
+            with open(self._model.get_path_settings_voices(), 'r') as f:
+                self._model.settings = json.load(f)
 
     def save_settings(self):
-        with open('settings', 'w') as f:
+        path_settings_voices = self._model.get_path_settings_voices()
+
+        # creates settings folder if it does not exist yet
+        path_settings_voices.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(path_settings_voices, 'w') as f:
             json.dump(self._model.settings, f)
 
     def get_language_choices(self):

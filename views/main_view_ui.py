@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(783, 627)
+        MainWindow.resize(709, 414)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -27,20 +27,23 @@ class Ui_MainWindow(object):
         self.widget_2 = QWidget(self.centralwidget)
         self.widget_2.setObjectName(u"widget_2")
         self.horizontalLayout = QHBoxLayout(self.widget_2)
-        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setSpacing(10)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.widget = QWidget(self.widget_2)
         self.widget.setObjectName(u"widget")
+        self.widget.setMinimumSize(QSize(300, 0))
         self.verticalLayout_2 = QVBoxLayout(self.widget)
-        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setSpacing(6)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setContentsMargins(9, 9, 9, 9)
         self.widget_4 = QWidget(self.widget)
         self.widget_4.setObjectName(u"widget_4")
-        self.widget_4.setMinimumSize(QSize(6, 20))
+        self.widget_4.setMinimumSize(QSize(6, 50))
         self.horizontalLayout_2 = QHBoxLayout(self.widget_4)
+        self.horizontalLayout_2.setSpacing(6)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.label = QLabel(self.widget_4)
@@ -112,6 +115,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.widget)
 
+        self.widget_5 = QWidget(self.widget_2)
+        self.widget_5.setObjectName(u"widget_5")
+        self.verticalLayout_5 = QVBoxLayout(self.widget_5)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.listWidget = QListWidget(self.widget_5)
+        self.listWidget.setObjectName(u"listWidget")
+
+        self.verticalLayout_5.addWidget(self.listWidget)
+
+
+        self.horizontalLayout.addWidget(self.widget_5)
+
         self.widget_3 = QWidget(self.widget_2)
         self.widget_3.setObjectName(u"widget_3")
         self.widget_3.setMinimumSize(QSize(70, 0))
@@ -135,6 +150,8 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.widget_3)
 
+        self.horizontalLayout.setStretch(0, 5)
+        self.horizontalLayout.setStretch(1, 3)
 
         self.verticalLayout.addWidget(self.widget_2)
 

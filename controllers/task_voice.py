@@ -67,11 +67,9 @@ class GetSynthesizedVoiceTask(QRunnable):
             # ensure the close method of the stream object will be called automatically
             # at the end of the with statement's scope.
             with closing(response["AudioStream"]) as stream:
-                output = os.path.join(gettempdir(), "speech.mp3")
-
                 try:
                     # Open a file for writing the output as a binary stream
-                    with open(output, "wb") as file:
+                    with open(self.data['path'], "wb") as file:
                         file.write(stream.read())
                 except IOError as error:
                     # Could not write to file, exit gracefully
@@ -85,7 +83,7 @@ class GetSynthesizedVoiceTask(QRunnable):
 
         # Play the audio using the platform's default player
         if sys.platform == "win32":
-            os.startfile(output)
+            os.startfile(self.data['path'])
         else:
             print("Flup")
             # The following works on macOS and Linux. (Darwin = mac, xdg-open = linux).

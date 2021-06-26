@@ -10,11 +10,11 @@
 # PyCharm files
 .idea
 
-# archived files
-zz_archiv
-
 # Cache files
 __pycache__
 
-# Setting file
-settings
+# Archived files
+/zz_archiv/
+
+# Folder of created Data
+/voicePadData/
