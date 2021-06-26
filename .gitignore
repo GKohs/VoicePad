@@ -7,6 +7,14 @@
 # Editor-based HTTP Client requests
 /httpRequests/
 
+# PyCharm files
 .idea
+
+# archived files
 zz_archiv
+
+# Cache files
 __pycache__
+
+# Setting file
+settings

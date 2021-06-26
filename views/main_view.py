@@ -18,30 +18,24 @@ class MainView(QMainWindow):
         ###############################
         # connect widgets to controller
         ###############################
+
         # update textEdit
         self._ui.textEdit.textChanged.connect(
-            lambda: self._main_controller.set_text_edit_plaintext(
+            lambda: self._main_controller.set_text_edit_plaintext_by_view(
                 self._ui.textEdit.toPlainText()))
 
-        # update of filter choice
+        # update by change of current filter choice
         self._ui.voicesComboBox.currentTextChanged.connect(
-            lambda: self._main_controller.update_voices_names(
+            lambda: self._main_controller.update_voices_names_by_view(
                 self._ui.voicesComboBox.currentText()))
         self._ui.languageComboBox.currentTextChanged.connect(
-            lambda: self._main_controller.update_voices_language(self._ui.languageComboBox.currentText()))
+            lambda: self._main_controller.update_voices_language_by_view(self._ui.languageComboBox.currentText()))
         self._ui.genderComboBox.currentTextChanged.connect(
-            lambda: self._main_controller.update_voices_gender(self._ui.genderComboBox.currentText()))
+            lambda: self._main_controller.update_voices_gender_by_view(self._ui.genderComboBox.currentText()))
         self._ui.enginesComboBox.currentTextChanged.connect(
-            lambda: self._main_controller.update_voices_engines(self._ui.enginesComboBox.currentText()))
+            lambda: self._main_controller.update_voices_engines_by_view(self._ui.enginesComboBox.currentText()))
 
-        self._ui.languageComboBox.currentTextChanged.connect(
-            self._main_controller.update_voices_choices)
-        self._ui.genderComboBox.currentTextChanged.connect(
-            self._main_controller.update_voices_choices)
-        self._ui.enginesComboBox.currentTextChanged.connect(
-            self._main_controller.update_voices_choices)
-
-        # update of voice button
+        # update of voice button disabled status
         self._ui.voicesComboBox.currentTextChanged.connect(
             self._main_controller.set_voice_button_status)
         self._ui.textEdit.textChanged.connect(
@@ -54,6 +48,7 @@ class MainView(QMainWindow):
         ################################
         # listen for model event signals
         ################################
+
         self._model.voices_response_changed.connect(
             self.on_voices_response_changed)
         self._model.voices_names_changed.connect(self.on_voices_names_changed)
@@ -78,6 +73,9 @@ class MainView(QMainWindow):
             self.on_voices_engines_current_changed)
         self._model.voices_languages_current_changed.connect(
             self.on_voices_languages_current_changed)
+
+        self._model.settings_changed.connect(
+            self.on_settings_changed)
 
         # set a default value
         # self._ui.voicePushButton.setDisabled(self._model.voice_push_button_status)
@@ -122,17 +120,22 @@ class MainView(QMainWindow):
         self._ui.voicesComboBox.clear()
         self._ui.voicesComboBox.addItems(value)
 
-        if value:
-            self._ui.voicesComboBox.setDisabled(False)
-        else:
+        if self._ui.voicesComboBox.count() == 0:
             self._ui.voicesComboBox.setDisabled(True)
+        else:
+            self._ui.voicesComboBox.setDisabled(False)
 
     @Slot(str)
     def on_text_edit_plaintext_changed(self, value):
-        # only update, if text is different
-        if self._ui.textEdit.toPlainText() != value:
-            self._ui.textEdit.setText(value)
+        self._ui.textEdit.setText(value)
 
     @Slot(str)
     def on_voice_push_button_disabled_status_changed(self, value):
         self._ui.voicePushButton.setDisabled(value)
+
+    @Slot(dict)
+    def on_settings_changed(self, value):
+        self._ui.genderComboBox.setCurrentText(value['_voices_gender_current'])
+        self._ui.enginesComboBox.setCurrentText(value['_voices_engines_current'])
+        self._ui.languageComboBox.setCurrentText(value['_voices_languages_current'])
+        self._ui.voicesComboBox.setCurrentText(value['_voices_names_current'])
