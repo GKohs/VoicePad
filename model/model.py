@@ -36,6 +36,14 @@ class Model(QObject):
     # voice settings signal
     settings_changed = Signal(dict)
 
+    # collection of data results signals
+    collection_data_results_replace_changed = Signal(list)
+    collection_data_results_append_changed = Signal(dict)
+    collection_data_results_header_changed = Signal(list)
+
+    # debug signal
+    debug_signal = Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -60,9 +68,23 @@ class Model(QObject):
         self._folder_data = "voicePadData"
         self._folder_settings = "settings"
         self._folder_results = "results"
-        self._filename_results_base = "voice."
+        self._filename_voice_result_base = "voice."
+        self._filename_collection_result_base = "collection_results."
         self._filename_settings_voices = "settingsVoices."
         self._base = Path().resolve()
+
+        self._collection_data_results = list()
+
+        self._collection_data_results_header = ["Datei", "Text", "Name",
+                                                "Sprache", "Zeit"]
+
+        self._switcher_collection_data_results_header = {
+            'Datei': 'filename',
+            'Text': 'text',
+            'Name': 'voice',
+            'Sprache': 'language',
+            'Zeit': 'timestamp',
+        }
 
     #############################
     # Path and filename variables
@@ -117,17 +139,30 @@ class Model(QObject):
         self._filename_settings_voices = value
 
     @property
-    def filename_results_base(self):
+    def filename_voice_results_base(self):
         """
         Base of filename for results.
         Will be incremented
         :return:
         """
-        return self._filename_results_base
+        return self._filename_voice_result_base
 
-    @filename_results_base.setter
-    def filename_results_base(self, value):
-        self._filename_results_base = value
+    @filename_voice_results_base.setter
+    def filename_voice_results_base(self, value):
+        self._filename_voice_result_base = value
+
+    @property
+    def filename_collection_result_base(self):
+        """
+        Base of filename for results.
+        Will be incremented
+        :return:
+        """
+        return self._filename_collection_result_base
+
+    @filename_collection_result_base.setter
+    def filename_collection_result_base(self, value):
+        self._filename_collection_result_base = value
 
     def get_path_settings_voices(self):
         settings_path = self._base.joinpath(self.folder_data).joinpath(
@@ -135,11 +170,18 @@ class Model(QObject):
         settings_filename = self.filename_settings_voices
         return settings_path.joinpath(settings_filename)
 
-    def get_path_results(self):
-        settings_path = self._base.joinpath(self.folder_data).joinpath(
+    def get_path_voice_results(self):
+        voice_result_path = self._base.joinpath(self.folder_data).joinpath(
             self.folder_results)
-        settings_filename = self.filename_results_base
-        return settings_path.joinpath(settings_filename)
+        voice_result_filename = self.filename_voice_results_base
+        return voice_result_path.joinpath(voice_result_filename)
+
+    def get_path_collection_results(self):
+        collection_result_path = self._base.joinpath(
+            self.folder_data).joinpath(
+            self.folder_results)
+        collection_result_filename = self.filename_collection_result_base
+        return collection_result_path.joinpath(collection_result_filename)
 
     ##############
     # API response
@@ -329,6 +371,20 @@ class Model(QObject):
     def voices_languages_current_by_view(self, value):
         self._settings['_voices_languages_current'] = value
 
+    def set_voices_filter_to_name(self):
+        """
+        loads name of voice from result table into filter
+        TBD: engine has to be handled differently
+        :return:
+        """
+        # self._settings = {
+        #     '_voices_names_current': "",
+        #     '_voices_engines_current': "",
+        #     '_voices_gender_current': "",
+        #     '_voices_languages_current': "",
+        # }
+        pass
+
     #########################
     # Voice pushButton status
     #########################
@@ -355,7 +411,8 @@ class Model(QObject):
     def get_voice_task_data(self):
         data = {'voice': self.voices_names_current,
                 'engine': self.voices_engines_current,
-                'text': self.text_edit_plaintext}
+                'text': self.text_edit_plaintext,
+                'language': self.voices_languages_current}
         return data
 
     ##########
@@ -404,3 +461,79 @@ class Model(QObject):
         self._settings = value
         self.settings_changed.emit(self._settings)
 
+    ##################
+    # Data collections
+    ##################
+
+    @property
+    def collection_data_results_append(self):
+        """
+        Collection of data results is a list of dictionaries with keywords:
+        - text
+        - path
+        - filename
+        - timestamp
+        - voice
+        - engine
+        :return: last dict in list
+        """
+        return self._collection_data_results[-1]
+
+    @collection_data_results_append.setter
+    def collection_data_results_append(self, value):
+        self._collection_data_results.append(value)
+        self.collection_data_results_append_changed.emit(
+            self._collection_data_results[-1])
+
+    @property
+    def collection_data_results_replace(self):
+        """
+        Collection of data results is a list of dictionaries with keywords:
+        - text
+        - path
+        - filename
+        - timestamp
+        - voice
+        - engine
+        :return: list of dicts
+        """
+        return self._collection_data_results
+
+    @collection_data_results_replace.setter
+    def collection_data_results_replace(self, value):
+        self._collection_data_results = value
+        self.collection_data_results_replace_changed.emit(
+            self._collection_data_results)
+
+    @property
+    def collection_data_results_header(self):
+        """
+        Header of table for data results
+        :return: list of strings
+        """
+        return self._collection_data_results_header
+
+    @collection_data_results_header.setter
+    def collection_data_results_header(self, value):
+        self._collection_data_results_header = value
+        self.collection_data_results_header_changed.emit(
+            self._collection_data_results_header)
+
+    @property
+    def switcher_collection_data_results_header(self):
+        """
+        Header of table for data results
+        :return: list of strings
+        """
+        return self._switcher_collection_data_results_header
+
+    @switcher_collection_data_results_header.setter
+    def switcher_collection_data_results_header(self, value):
+        self._collection_data_results_header = value
+
+    #######
+    # Debug
+    #######
+
+    def debug(self):
+        self.debug_signal.emit()

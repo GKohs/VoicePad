@@ -10,6 +10,7 @@ from tempfile import gettempdir
 
 class TaskSignals(QObject):
     finished = Signal()
+    finished_with_data = Signal(object)
     error = Signal(tuple)
     result = Signal(object)
     progress = Signal(int)
@@ -71,10 +72,13 @@ class GetSynthesizedVoiceTask(QRunnable):
                     # Open a file for writing the output as a binary stream
                     with open(self.data['path'], "wb") as file:
                         file.write(stream.read())
+                    self.signals.finished_with_data.emit(self.data)
                 except IOError as error:
                     # Could not write to file, exit gracefully
                     print(error)
                     sys.exit(-1)
+                finally:
+                    self.signals.finished_with_data.disconnect()
 
         else:
             # The response didn't contain audio data, exit gracefully

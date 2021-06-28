@@ -17,7 +17,8 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(709, 414)
+        MainWindow.resize(963, 568)
+        MainWindow.setUnifiedTitleAndToolBarOnMac(False)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -117,12 +118,28 @@ class Ui_MainWindow(object):
 
         self.widget_5 = QWidget(self.widget_2)
         self.widget_5.setObjectName(u"widget_5")
+        self.widget_5.setMaximumSize(QSize(550, 16777215))
         self.verticalLayout_5 = QVBoxLayout(self.widget_5)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.listWidget = QListWidget(self.widget_5)
-        self.listWidget.setObjectName(u"listWidget")
+        self.resultTableWidget = QTableWidget(self.widget_5)
+        if (self.resultTableWidget.columnCount() < 5):
+            self.resultTableWidget.setColumnCount(5)
+        self.resultTableWidget.setObjectName(u"resultTableWidget")
+        self.resultTableWidget.setMinimumSize(QSize(150, 0))
+        self.resultTableWidget.setMaximumSize(QSize(550, 16777215))
+        self.resultTableWidget.setFrameShape(QFrame.StyledPanel)
+        self.resultTableWidget.setLineWidth(1)
+        self.resultTableWidget.setMidLineWidth(0)
+        self.resultTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.resultTableWidget.setDragEnabled(True)
+        self.resultTableWidget.setAlternatingRowColors(True)
+        self.resultTableWidget.setSortingEnabled(True)
+        self.resultTableWidget.setRowCount(0)
+        self.resultTableWidget.setColumnCount(5)
+        self.resultTableWidget.horizontalHeader().setStretchLastSection(True)
+        self.resultTableWidget.verticalHeader().setVisible(False)
 
-        self.verticalLayout_5.addWidget(self.listWidget)
+        self.verticalLayout_5.addWidget(self.resultTableWidget)
 
 
         self.horizontalLayout.addWidget(self.widget_5)
@@ -150,8 +167,8 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.widget_3)
 
-        self.horizontalLayout.setStretch(0, 5)
-        self.horizontalLayout.setStretch(1, 3)
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 2)
 
         self.verticalLayout.addWidget(self.widget_2)
 
